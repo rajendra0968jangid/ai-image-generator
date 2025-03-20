@@ -1,21 +1,24 @@
-# Use an official Node.js image as base
-FROM node:18-alpine
+# Use Node.js 18 Debian-based image (not Alpine)
+FROM node:18-bullseye
 
-# Set the working directory
 WORKDIR /app
 
-# Copy package.json and package-lock.json
-COPY package*.json ./
+# Install OpenSSL
+RUN apt-get update && apt-get install -y openssl
 
-# Install dependencies
-RUN npm install --omit=dev
-# RUN npm install --production
+# Set OpenSSL legacy mode to fix cipher issues
+ENV NODE_OPTIONS="--openssl-legacy-provider"
 
-# Copy the rest of the project files
+# Disable strict SSL checks
+RUN npm config set strict-ssl false
+
+COPY package.json package-lock.json ./
+
+# Install dependencies with legacy peer deps
+RUN npm install --legacy-peer-deps
+
 COPY . .
 
-# Expose the port the app runs on
 EXPOSE 5000
 
-# Command to run the app
 CMD ["node", "index.js"]

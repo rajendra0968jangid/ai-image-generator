@@ -17,7 +17,7 @@ const client = new OpenAI({
 });
 
 
-app.get("/",()=>{
+app.get("/",(req,res)=>{
     res.send("Hello");
 })
 
